@@ -1,0 +1,25 @@
+name: Yandex Quasar Voice
+version: "0.1.0"
+slug: yandex_quasar_voice
+description: Voice search from a rooted Yandex Station to Music Assistant
+url: https://github.com/djp1-hub/home-assistant-yandex-quasar-voice-addon
+arch:
+  - amd64
+  - aarch64
+  - armv7
+startup: services
+boot: auto
+init: false
+homeassistant_api: true
+options:
+  station_adb_serial: "192.168.1.50:5555"
+  ma_player_entity: "media_player.yandex_station"
+  ma_config_entry_id: ""
+  youtube_provider: "ytmusic"
+  command_prefix: ""
+schema:
+  station_adb_serial: str
+  ma_player_entity: str
+  ma_config_entry_id: str
+  youtube_provider: str
+  command_prefix: str?
