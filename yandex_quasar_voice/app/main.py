@@ -25,20 +25,35 @@ def load_settings(path: str = "/data/options.json") -> Settings:
 
 def adb_lines(serial: str, delay: float = 5.0):
     while True:
-        subprocess.run(["adb", "connect", serial], stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL, timeout=10, check=False)
-        process = subprocess.Popen(
-            ["adb", "-s", serial, "shell", "tail", "-n", "0", "-F", LOG_PATH],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
-            encoding="utf-8", errors="replace", bufsize=1,
-        )
+        process = None
         try:
+            connection = subprocess.run(
+                ["adb", "connect", serial],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=10,
+                check=False,
+            )
+            if connection.returncode != 0:
+                raise OSError("adb connect failed")
+            process = subprocess.Popen(
+                ["adb", "-s", serial, "shell", "tail", "-n", "0", "-F", LOG_PATH],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+                encoding="utf-8", errors="replace", bufsize=1,
+            )
+            print("ADB connected; watching Quasar log", file=sys.stderr, flush=True)
             if process.stdout:
                 yield from process.stdout
+        except (OSError, subprocess.SubprocessError) as exc:
+            print(f"ADB unavailable ({exc}); retrying", file=sys.stderr, flush=True)
         finally:
-            if process.poll() is None:
+            if process is not None and process.poll() is None:
                 process.terminate()
-                process.wait(timeout=3)
+                try:
+                    process.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
         yield None
         time.sleep(delay)
 

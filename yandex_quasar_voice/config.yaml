@@ -1,5 +1,5 @@
 name: Yandex Quasar Voice
-version: "0.1.0"
+version: "0.1.1"
 slug: yandex_quasar_voice
 description: Voice search from a rooted Yandex Station to Music Assistant
 url: https://github.com/djp1-hub/home-assistant-yandex-quasar-voice-addon
